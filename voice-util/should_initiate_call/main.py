@@ -20,9 +20,16 @@ request_key = os.getenv("REQUEST_KEY")
 # 🔐 Vérification du token avant chaque requête
 @app.before_request
 def verify_api_key():
+    if request.path == "/ping":
+        return
+
     if request.headers.get("X-API-KEY") != request_key:
         logger.warning("Tentative d'accès sans clé valide")
         abort(403)
+
+@app.route("/ping", methods=["GET"])
+def health_check():
+    return jsonify({"status": "ok"}), 200
 
 # 🔍 Route principale : détermine si un appel peut être lancé
 @app.route("/", methods=["GET"])
